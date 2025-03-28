@@ -1,0 +1,66 @@
+import streamlit as st
+import pandas as pd
+from datetime import datetime
+
+# Configuração da página
+st.set_page_config(page_title="Cálculo de Pagamento", layout="wide")
+
+# Título da aplicação
+st.title("Sistema de Cálculo de Pagamento")
+
+# Função para calcular o pagamento
+def calcular_pagamento(valor_referencia, percentual_gratificacao, dias_trabalhados, dias_no_mes=30):
+    valor_diario = valor_referencia / dias_no_mes
+    valor_base = valor_diario * dias_trabalhados
+    gratificacao = valor_base * (percentual_gratificacao / 100)
+    valor_total = valor_base + gratificacao
+    return valor_total
+
+# Interface para entrada de dados
+st.header("Informações do Funcionário")
+
+# Campos de entrada
+col1, col2 = st.columns(2)
+
+with col1:
+    uf = st.text_input("UF")
+    matricula = st.text_input("Matrícula")
+    nome = st.text_input("Nome")
+    funcao = st.text_input("Função")
+
+with col2:
+    codigo_atividade = st.text_input("Código da Atividade")
+    valor_referencia = st.number_input("Valor de Referência", min_value=0.0)
+    percentual_gratificacao = st.number_input("Percentual de Gratificação (%)", min_value=0.0, max_value=100.0)
+    dias_trabalhados = st.number_input("Dias Trabalhados", min_value=0, max_value=31)
+
+# Botão para calcular
+if st.button("Calcular Pagamento"):
+    if dias_trabalhados > 0 and valor_referencia > 0:
+        valor_total = calcular_pagamento(
+            valor_referencia,
+            percentual_gratificacao,
+            dias_trabalhados
+        )
+        
+        # Exibição dos resultados
+        st.header("Resultado do Cálculo")
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            st.metric("Valor Base", f"R$ {valor_referencia:.2f}")
+            st.metric("Dias Trabalhados", dias_trabalhados)
+        
+        with col2:
+            valor_diario = valor_referencia / 30
+            st.metric("Valor Diário", f"R$ {valor_diario:.2f}")
+            valor_base = valor_diario * dias_trabalhados
+            st.metric("Valor Base Total", f"R$ {valor_base:.2f}")
+        
+        with col3:
+            gratificacao = valor_base * (percentual_gratificacao / 100)
+            st.metric("Gratificação", f"R$ {gratificacao:.2f}")
+            st.metric("Valor Total", f"R$ {valor_total:.2f}")
+    else:
+        st.error("Por favor, preencha todos os campos necessários corretamente.") 
